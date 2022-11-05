@@ -6,17 +6,24 @@ tasks:
   - name: Pull in RDE
     # TODO - change to 'offical' fork
     # This could then be branched/versioned per Magento release
-    before: cd /workspace/rde && git fetch && git switch mage-os-rde
+    before: >
+      cd /workspace/rde 
+      && git fetch 
+      && git switch mage-os-rde 
+      && gp sync-done rde-repo-setup
+      && exit
 
   - name: Fix Permissions (Temp, need to do this a better way)
-    before: chmod -R a+rw /workspace/magento2
+    before: chmod -R a+rw /workspace/magento2 && exit
 
   - name: Start Stack
     init: >
-      /workspace/rde/compose/bin/init &&
-      gp sync-done magento-installed
+      gp sync-await rde-repo-setup
+      && /workspace/rde/compose/bin/init
+      && gp sync-done magento-installed
+      && exit
   
-  - name: Reindex
+  - name: indexer:reindex
     init: gp sync-await magento-installed
     command: /workspace/rde/compose/bin/clinotty bin/magento indexer:reindex
 
