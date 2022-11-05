@@ -1,0 +1,42 @@
+additionalRepositories:
+  - url: https://github.com/adamzero1/docker-magento.git
+    checkoutLocation: rde
+
+tasks:
+  - name: Pull in RDE
+    # TODO - change to 'offical' fork
+    # This could then be branched/versioned per Magento release
+    before: cd /workspace/rde && git fetch && git switch mage-os-rde
+
+  - name: Fix Permissions (Temp, need to do this a better way)
+    before: chmod -R a+rw /workspace/magento2
+
+  - name: Start Stack
+    init: >
+      /workspace/rde/compose/bin/init &&
+      gp sync-done magento-installed
+  
+  - name: Reindex
+    init: gp sync-await magento-installed
+    command: /workspace/rde/compose/bin/clinotty bin/magento indexer:reindex
+
+  - name: Magento Init
+    init: gp sync-await magento-installed
+    command: >
+      /workspace/rde/compose/bin/wait-for-init-to-complete 
+      && /workspace/rde/compose/bin/clinotty bin/magento deploy:mode:set developer 
+      && /workspace/rde/compose/bin/clinotty bin/magento cache:enable 
+      && /workspace/rde/compose/bin/clinotty bin/magento cache:flush 
+      && curl -IX GET $(gp url 443) # Hit frontend to generate static symlinks
+  
+  - name: Install Magento cron
+    init: gp sync-await magento-installed
+    command: /workspace/rde/compose/bin/clinotty bin/magento cron:install
+
+# List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
+ports:
+  - name: Frontend
+    description: Frontend URL of Magento
+    port: 443
+    onOpen: open-browser
+    visibility: public
