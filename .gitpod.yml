@@ -32,6 +32,7 @@ tasks:
     command: >
       docker exec -u root phpfpm bash -c "chmod a+rwx /sock/docker.sock; ls -lath /sock/docker.sock"
       && gp sync-done socket-permissions-resolved
+      && exit
 
   - name: Magento Init
     init: gp sync-await magento-installed
