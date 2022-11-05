@@ -30,8 +30,7 @@ tasks:
   - name: Magento Init
     init: gp sync-await magento-installed
     command: >
-      /workspace/rde/compose/bin/wait-for-init-to-complete 
-      && /workspace/rde/compose/bin/clinotty bin/magento deploy:mode:set developer 
+      /workspace/rde/compose/bin/clinotty bin/magento deploy:mode:set developer 
       && /workspace/rde/compose/bin/clinotty bin/magento cache:enable 
       && /workspace/rde/compose/bin/clinotty bin/magento cache:flush 
       && curl -IX GET $(gp url 443) # Hit frontend to generate static symlinks
