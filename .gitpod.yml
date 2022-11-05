@@ -37,7 +37,7 @@ tasks:
   
   - name: Install Magento cron
     init: gp sync-await magento-installed
-    command: /workspace/rde/compose/bin/clinotty bin/magento cron:install
+    command: /workspace/rde/compose/bin/clinotty bin/magento cron:install && exit
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
