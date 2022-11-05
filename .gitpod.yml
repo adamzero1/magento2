@@ -41,7 +41,6 @@ tasks:
       && /workspace/rde/compose/bin/clinotty bin/magento cache:enable 
       && /workspace/rde/compose/bin/clinotty bin/magento cache:flush 
       && gp sync-await socket-permissions-resolved
-      # Hit frontend to generate static symlinks (and to check site is up)
       && RESPONSE_CODE=$(curl -s -o /dev/null -w '%{http_code}' $(gp url 443)); if [ ${RESPONSE_CODE} -eq "201" ]; then echo "all good"; exit; else echo "There was an issue when requesting the frontend, please see: $(gp url 443)"; fi
   
   - name: Install Magento cron
