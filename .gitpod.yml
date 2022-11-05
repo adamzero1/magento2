@@ -25,7 +25,7 @@ tasks:
   
   - name: indexer:reindex
     init: gp sync-await magento-installed
-    command: /workspace/rde/compose/bin/clinotty bin/magento indexer:reindex
+    command: /workspace/rde/compose/bin/clinotty bin/magento indexer:reindex && exit
 
   - name: Magento Init
     init: gp sync-await magento-installed
