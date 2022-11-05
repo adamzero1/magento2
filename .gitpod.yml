@@ -13,7 +13,7 @@ tasks:
       && gp sync-done rde-repo-setup
       && exit
 
-  - name: Fix Permissions (Temp, need to do this a better way)
+  - name: Fix File Permissions (Temp until issue resolved propperly)
     before: chmod -R a+rw /workspace/magento2 && exit
 
   - name: Start Stack
@@ -26,6 +26,12 @@ tasks:
   - name: indexer:reindex
     init: gp sync-await magento-installed
     command: /workspace/rde/compose/bin/clinotty bin/magento indexer:reindex && exit
+  
+  - name: Fix socket permissions (Temp until issue resolved propperly)
+    init: gp sync-await magento-installed
+    command: >
+      docker exec -u root phpfpm bash -c "chmod a+rwx /sock/docker.sock; ls -lath /sock/docker.sock"
+      && gp sync-done socket-permissions-resolved
 
   - name: Magento Init
     init: gp sync-await magento-installed
@@ -33,7 +39,9 @@ tasks:
       /workspace/rde/compose/bin/clinotty bin/magento deploy:mode:set developer 
       && /workspace/rde/compose/bin/clinotty bin/magento cache:enable 
       && /workspace/rde/compose/bin/clinotty bin/magento cache:flush 
-      && curl -IX GET $(gp url 443) # Hit frontend to generate static symlinks
+      && gp sync-await socket-permissions-resolved
+      # Hit frontend to generate static symlinks (and to check site is up)
+      && RESPONSE_CODE=$(curl -s -o /dev/null -w '%{http_code}' $(gp url 443)); if [ ${RESPONSE_CODE} -eq "201" ]; then echo "all good"; exit; else echo "There was an issue when requesting the frontend, please see: $(gp url 443)"; fi
   
   - name: Install Magento cron
     init: gp sync-await magento-installed
@@ -46,3 +54,49 @@ ports:
     port: 443
     onOpen: open-browser
     visibility: public
+  - name: Http Traffic
+    description: Http traffic (shouldnt be used)
+    port: 80
+    visibility: private
+    onOpen: ignore
+  - name: db
+    description: Database port
+    port: 3306
+    visibility: private
+    onOpen: ignore
+  - name: Redis
+    description: Redis port
+    port: 6379
+    visibility: private
+    onOpen: ignore
+  - name: Elasticsearch API
+    description: Elasticsearch API port
+    port: 9200
+    visibility: private
+    onOpen: ignore
+  - name: Elasticsearch Cluster Comms
+    description: Elasticsearch search cluster communication port
+    port: 9300
+    visibility: private
+    onOpen: ignore
+  - name: RabbitMQ Management
+    description: RabbitMQ management port
+    port: 15672
+    visibility: private
+    onOpen: ignore
+  - name: RabbitMQ Comms
+    description: RabbitMQ communiation port
+    port: 5672
+    visibility: private
+    onOpen: ignore
+  - name: Mailcatcher
+    description: Mailcatcher port
+    port: 1080
+    visibility: private
+    onOpen: ignore
+  - name: PHP My Admin
+    description: PHPMyAdmin port
+    port: 8080
+    visibility: private
+    onOpen: ignore
+  
