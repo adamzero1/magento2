@@ -1,0 +1,51 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - 2.4-develop
+
+permissions:
+  contents: write
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      # TODO environment set up: WARDEN
+
+      - name: Install / setups Nx
+        run: |
+          npm install -g nx@15.4.1
+          NXDIR=/workspaces/nx-for-php
+          git clone https://github.com/adamzero1/nx-for-php.git ${NXDIR}
+          cp -r ${NXDIR}/nx ./ 
+          cp ${NXDIR}/nx.json ./ 
+          cp ${NXDIR}/package.json ./ 
+          cp ${NXDIR}/package-lock.json ./ 
+          cp ${NXDIR}/phpunit.mage-os.nx.xml ./phpunit.nx.xml
+          npm ci
+          npm run generate-workspace
+
+      - name: Dependency Comment
+        env:
+          GITHUB_URL: ${{ github.event.pull_request.comments_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AFFECTED_OUTPUT=/tmp/affect.json
+          nx print-affected --files=app/code/Magento/AdminAnalytics/Model/ResourceModel/Viewer/Logger.php > ${AFFECTED_OUTPUT}   
+          AFFECTED_COUNT=$(jq '.projects | length' ${AFFECTED_OUTPUT})
+          TOTAL_COUNT=$(jq '.projectGraph.nodes | length' ${AFFECTED_OUTPUT})
+          PERCENTAGE=$(php -r "printf('%.2f', ((${AFFECTED_COUNT}/${TOTAL_COUNT})*100));")
+          echo "${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)"
+          curl -X POST \
+            $GITHUB_URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            --data "{\"body\": \"${${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)}\"}'
+
+      - name: Run unit tests
+        run: |
+          nx affected --target=test:unit --files=app/code/Magento/AdminNotification/Model/Feed.php
+          nx affected --target=test:unit --base=2.4-develop --head=HEAD
+
