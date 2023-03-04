@@ -24,6 +24,13 @@ jobs:
         working-directory: ./main
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
+      - name: aaaaaa
+        working-directory: ./main
+        run: |
+          git branch
+          git branch --show-current
+          git merge-base --fork-point "remotes/origin/nx-work" "HEAD"
+
       - name: Install Composer
         uses: php-actions/composer@v6
         with:
