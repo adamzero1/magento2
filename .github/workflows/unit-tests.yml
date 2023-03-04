@@ -19,20 +19,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: main
+          # Need to do this otherwise Nx cant determine diff
           fetch-depth: 0
 
       - name: Fetch base
         working-directory: ./main
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
-
-      - name: aaaaaa
-        working-directory: ./main
-        run: |
-          git branch
-          git switch -c pr
-          git branch
-          git branch --show-current
-          git merge-base --fork-point "remotes/origin/nx-work" "HEAD"
 
       - name: Install Composer
         uses: php-actions/composer@v6
