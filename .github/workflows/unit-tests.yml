@@ -28,6 +28,8 @@ jobs:
         working-directory: ./main
         run: |
           git branch
+          git switch -c pr
+          git branch
           git branch --show-current
           git merge-base --fork-point "remotes/origin/nx-work" "HEAD"
 
