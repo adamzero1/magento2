@@ -68,7 +68,7 @@ jobs:
 
       - name: Print Affected
         working-directory: ./main
-        run: nx print-affected -- --base=remotes/origin/${{ github.event.pull_request.base.ref }}
+        run: nx print-affected --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
 
       # TODO environment set up: WARDEN
 
