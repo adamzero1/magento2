@@ -24,6 +24,29 @@ jobs:
         working-directory: ./main
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
+      - name: Install Composer
+        uses: php-actions/composer@v6
+        with:
+          # Run the dummy help command after installing Composer (otherwise defaults to install)
+          command: help
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        working-directory: ./main
+        run: echo "composer_cache_dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Install Composer Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.composer_cache_dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/main/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        working-directory: ./main
+        run: composer install
+
       - name: Checkout Nx Repo
         uses: actions/checkout@v3
         with:
