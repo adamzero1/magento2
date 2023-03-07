@@ -10,7 +10,7 @@ namespace Magento\AdminAnalytics\ViewModel;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\AdminAnalytics\Model\Condition\CanViewNotification as AdminAnalyticsNotification;
 use Magento\ReleaseNotification\Model\Condition\CanViewNotification as ReleaseNotification;
-
+// test
 /**
  * Control display of admin analytics and release notification modals
  */
