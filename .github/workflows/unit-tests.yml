@@ -80,6 +80,7 @@ jobs:
           path: den
 
       - name: Init / Configure Den
+        working-directory: ./main
         run: |
           DEN=../den/bin/den
           ${DEN} env-init magento2 magento2
@@ -88,6 +89,7 @@ jobs:
 
       # Unit test command test
       - name: Run PHPUnit
+        working-directory: ./main
         run: |
           DEN=../den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
