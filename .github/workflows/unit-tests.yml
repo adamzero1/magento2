@@ -72,6 +72,7 @@ jobs:
         run: |
           AFFECTED_OUTPUT=/tmp/affect.json
           nx print-affected --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }} > ${AFFECTED_OUTPUT}
+          sed -i '1d' ${AFFECTED_OUTPUT}
           echo "Affected Projects: $(jq .projects ${AFFECTED_OUTPUT})"
           TOTAL_COUNT=$(jq '.projectGraph.nodes | length' ${AFFECTED_OUTPUT})
           PERCENTAGE=$(php -r "printf('%.2f', ((${AFFECTED_COUNT}/${TOTAL_COUNT})*100));")
