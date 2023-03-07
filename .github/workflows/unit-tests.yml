@@ -82,6 +82,7 @@ jobs:
       - name: Init / Configure Den
         working-directory: ./main
         run: |
+          pwd
           DEN=../den/bin/den
           ${DEN} env-init magento2 magento2
           sed -i 's/WARDEN_TEST_DB=.*/WARDEN_TEST_DB=1/g' .env
