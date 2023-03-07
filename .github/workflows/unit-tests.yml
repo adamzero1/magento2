@@ -82,11 +82,7 @@ jobs:
       - name: Init / Configure Den
         working-directory: ./main
         run: |
-          pwd
-          ls /home/runner/work/magento2/
-          ls /home/runner/work/magento2/magento2/
           DEN=/home/runner/work/magento2/magento2/den/bin/den
-          ls -lath ${DEN}
           ${DEN} env-init magento2 magento2
           sed -i 's/WARDEN_TEST_DB=.*/WARDEN_TEST_DB=1/g' .env
           ${DEN} env up
@@ -95,7 +91,7 @@ jobs:
       - name: Run PHPUnit
         working-directory: ./main
         run: |
-          DEN=../den/bin/den
+          DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
 
 # /opt/den/bin/den env-init magento2 magento2
