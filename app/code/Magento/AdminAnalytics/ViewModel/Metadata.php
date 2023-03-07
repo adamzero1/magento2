@@ -15,6 +15,7 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\State;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\Information;
+# This is a test
 
 /**
  * Gets user version and mode
