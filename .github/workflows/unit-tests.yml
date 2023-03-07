@@ -1,5 +1,5 @@
 name: Unit Tests
-
+run-name: ${{ github.actor }} is running Unit Tests
 on:
   pull_request:
     branches:
@@ -13,5 +13,85 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Unit Tests
-        uses: adamzero1/temp-repo2/blob/main/.github/workflows/mageos-unit-tests.yml@main
+      - name: Checkout PR commit
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: main
+          # Need to do this otherwise Nx cant determine diff
+          fetch-depth: 0
+
+      - name: Fetch base
+        working-directory: ./main
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+
+      - name: Install Composer
+        uses: php-actions/composer@v6
+        with:
+          # Run the dummy help command after installing Composer (otherwise defaults to install)
+          command: help
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        working-directory: ./main
+        run: echo "composer_cache_dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Install Composer Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.composer_cache_dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/main/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        working-directory: ./main
+        run: composer install
+
+      - name: Checkout Nx Repo
+        uses: actions/checkout@v3
+        with:
+          repository: adamzero1/nx-for-php
+          path: nx
+
+      - name: Install / setup Nx
+        working-directory: ./main
+        run: |
+          npm install -g nx@15.4.1
+          NXDIR="../nx"
+          cp -r ${NXDIR}/nx ./ 
+          cp ${NXDIR}/nx.json ./ 
+          cp ${NXDIR}/package.json ./ 
+          cp ${NXDIR}/package-lock.json ./ 
+          cp ${NXDIR}/phpunit.mage-os.nx.xml ./phpunit.nx.xml
+          npm ci
+          npm run generate-workspace
+
+      - name: Print Affected
+        working-directory: ./main
+        run: nx print-affected --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
+
+      # TODO environment set up: WARDEN
+
+      # - name: Dependency Comment
+      #   env:
+      #     GITHUB_URL: ${{ github.event.pull_request.comments_url }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     AFFECTED_OUTPUT=/tmp/affect.json
+      #     nx print-affected --files=app/code/Magento/AdminAnalytics/Model/ResourceModel/Viewer/Logger.php > ${AFFECTED_OUTPUT}   
+      #     AFFECTED_COUNT=$(jq '.projects | length' ${AFFECTED_OUTPUT})
+      #     TOTAL_COUNT=$(jq '.projectGraph.nodes | length' ${AFFECTED_OUTPUT})
+      #     PERCENTAGE=$(php -r "printf('%.2f', ((${AFFECTED_COUNT}/${TOTAL_COUNT})*100));")
+      #     echo "${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)"
+      #     curl -X POST \
+      #       $GITHUB_URL \
+      #       -H "Content-Type: application/json" \
+      #       -H "Authorization: token $GITHUB_TOKEN" \
+      #       --data "{\"body\": \"${${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)}\"}'
+
+      # - name: Run unit tests
+      #   run: |
+      #     nx affected --target=test:unit --files=app/code/Magento/AdminNotification/Model/Feed.php
+      #     nx affected --target=test:unit --base=2.4-develop --head=HEAD
+
