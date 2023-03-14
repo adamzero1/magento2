@@ -98,6 +98,7 @@ jobs:
       - name: Run PHPUnit
         working-directory: ./main
         run: |
+          chmod -R a+rw .
           DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
           ${DEN} env exec -T php-fpm whoami
