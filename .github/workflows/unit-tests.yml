@@ -104,7 +104,7 @@ jobs:
       - name: Run PHPUnit Nx
         working-directory: ./main
         run: |
-          DEN=/home/runner/work/magento2/magento2/den/bin/den
+          export DEN=/home/runner/work/magento2/magento2/den/bin/den
           nx affected --target=test:test --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
 
 # /opt/den/bin/den env-init magento2 magento2
