@@ -51,7 +51,7 @@ jobs:
       - name: Checkout Nx Repo
         uses: actions/checkout@v3
         with:
-          repository: adamzero1/nx-for-php
+          repository: adamzero1/nx-for-php@docker-wrapper
           path: nx
 
       - name: Install / setup Nx
@@ -100,11 +100,11 @@ jobs:
           DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
 
-      # - name: Run PHPUnit Nx
-      #   working-directory: ./main
-      #   run: |
-      #     DEN=/home/runner/work/magento2/magento2/den/bin/den
-      #     nx affected --target=test:test --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
+      - name: Run PHPUnit Nx
+        working-directory: ./main
+        run: |
+          DEN=/home/runner/work/magento2/magento2/den/bin/den
+          nx affected --target=test:test --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
 
 # /opt/den/bin/den env-init magento2 magento2
 # /opt/den/bin/den env exec -T php-fpm ./vendor/bin/phpunit --help
