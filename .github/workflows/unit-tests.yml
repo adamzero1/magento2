@@ -51,7 +51,8 @@ jobs:
       - name: Checkout Nx Repo
         uses: actions/checkout@v3
         with:
-          repository: adamzero1/nx-for-php@docker-wrapper
+          repository: adamzero1/nx-for-php
+          ref: docker-wrapper
           path: nx
 
       - name: Install / setup Nx
