@@ -94,7 +94,7 @@ jobs:
           sed -i 's/WARDEN_TEST_DB=.*/WARDEN_TEST_DB=1/g' .env
           ${DEN} env up
 
-      # Unit test command test
+      # Unit test command test 
       - name: Run PHPUnit
         working-directory: ./main
         run: |
