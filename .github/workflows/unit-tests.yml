@@ -100,6 +100,9 @@ jobs:
         run: |
           DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
+          ${DEN} env exec -T php-fpm whoami
+          ${DEN} env exec -T php-fpm ls -lath
+
 
       - name: Run PHPUnit Nx
         working-directory: ./main
