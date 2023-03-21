@@ -3,7 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace Magento\AdminNotification\Model;
+namespace Magento\AdminNotification\Model; 
 
 use Laminas\Http\Request;
 use Magento\AdminNotification\Model\InboxFactory;
