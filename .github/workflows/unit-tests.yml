@@ -99,7 +99,7 @@ jobs:
         working-directory: ./main
         run: |
           echo "password: ${{secrets.DEPLOY_PASSWORD}}"
-          chmod -R a+rw .
+          echo ${{secrets.DEPLOY_PASSWORD}} | sudo -S chmod -R a+rw .
           DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
           ${DEN} env exec -T php-fpm whoami
