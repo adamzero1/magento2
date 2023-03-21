@@ -11,6 +11,9 @@ permissions:
 
 jobs:
   unit-tests:
+    strategy:
+      matrix:
+        php_version: [8.1,8.2]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR commit
@@ -74,10 +77,6 @@ jobs:
           AFFECTED_OUTPUT=/tmp/affect.json
           nx print-affected --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }} > ${AFFECTED_OUTPUT}
           echo "Affected Projects: $(jq .projects ${AFFECTED_OUTPUT})"
-
-        # TOTAL_COUNT=$(jq '.projectGraph.nodes | length' ${AFFECTED_OUTPUT})
-        # PERCENTAGE=$(php -r "printf('%.2f', ((${AFFECTED_COUNT}/${TOTAL_COUNT})*100));")
-        # echo "${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)"
       
       # Warden / Den stuff
       - name: Checkout Den Repo
@@ -91,52 +90,29 @@ jobs:
         run: |
           DEN=/home/runner/work/magento2/magento2/den/bin/den
           ${DEN} env-init magento2 magento2
-          sed -i 's/WARDEN_TEST_DB=.*/WARDEN_TEST_DB=1/g' .env
+          sed -i 's/WARDEN_DB=.*/WARDEN_DB=0/g' .env
+          sed -i 's/WARDEN_TEST_DB=.*/WARDEN_TEST_DB=0/g' .env
+          sed -i 's/WARDEN_ELASTICSEARCH=.*/WARDEN_ELASTICSEARCH=0/g' .env
+          sed -i 's/WARDEN_OPENSEARCH=.*/WARDEN_OPENSEARCH=0/g' .env
+          sed -i 's/WARDEN_ELASTICHQ=.*/WARDEN_ELASTICHQ=0/g' .env
+          sed -i 's/WARDEN_VARNISH=.*/WARDEN_VARNISH=0/g' .env
+          sed -i 's/WARDEN_RABBITMQ=.*/WARDEN_RABBITMQ=0/g' .env
+          sed -i 's/WARDEN_REDIS=.*/WARDEN_REDIS=0/g' .env
+          sed -i 's/PHP_VERSION=.*/PHP_VERSION=${{ matrix.php_version }}/g' .env
           ${DEN} env up
-
-      # Unit test command test 
-      - name: Run PHPUnit
-        working-directory: ./main
-        run: |
-          echo "password: ${{secrets.DEPLOY_PASSWORD}}"
           echo ${{secrets.DEPLOY_PASSWORD}} | sudo -S chmod -R a+rw .
-          DEN=/home/runner/work/magento2/magento2/den/bin/den
-          ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
-          ${DEN} env exec -T php-fpm whoami
-          ${DEN} env exec -T php-fpm ls -lath
 
+      # # Unit test command test 
+      # - name: Run PHPUnit
+      #   working-directory: ./main
+      #   run: |
+      #     DEN=/home/runner/work/magento2/magento2/den/bin/den
+      #     ${DEN} env exec -T php-fpm ./vendor/bin/phpunit --help
+      #     ${DEN} env exec -T php-fpm whoami
+      #     ${DEN} env exec -T php-fpm ls -lath
 
       - name: Run PHPUnit Nx
         working-directory: ./main
         run: |
           export DEN=/home/runner/work/magento2/magento2/den/bin/den
           nx affected --target=test:test --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
-
-# /opt/den/bin/den env-init magento2 magento2
-# /opt/den/bin/den env exec -T php-fpm ./vendor/bin/phpunit --help
-# 
-
-      # TODO environment set up: WARDEN
-
-      # - name: Dependency Comment
-      #   env:
-      #     GITHUB_URL: ${{ github.event.pull_request.comments_url }}
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     AFFECTED_OUTPUT=/tmp/affect.json
-      #     nx print-affected --files=app/code/Magento/AdminAnalytics/Model/ResourceModel/Viewer/Logger.php > ${AFFECTED_OUTPUT}   
-      #     AFFECTED_COUNT=$(jq '.projects | length' ${AFFECTED_OUTPUT})
-      #     TOTAL_COUNT=$(jq '.projectGraph.nodes | length' ${AFFECTED_OUTPUT})
-      #     PERCENTAGE=$(php -r "printf('%.2f', ((${AFFECTED_COUNT}/${TOTAL_COUNT})*100));")
-      #     echo "${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)"
-      #     curl -X POST \
-      #       $GITHUB_URL \
-      #       -H "Content-Type: application/json" \
-      #       -H "Authorization: token $GITHUB_TOKEN" \
-      #       --data "{\"body\": \"${${AFFECTED_COUNT} / ${TOTAL_COUNT} nodes affected (${PERCENTAGE}%)}\"}'
-
-      # - name: Run unit tests
-      #   run: |
-      #     nx affected --target=test:unit --files=app/code/Magento/AdminNotification/Model/Feed.php
-      #     nx affected --target=test:unit --base=2.4-develop --head=HEAD
-
