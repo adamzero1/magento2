@@ -67,7 +67,6 @@ jobs:
           cp ${NXDIR}/nx.json ./ 
           cp ${NXDIR}/package.json ./ 
           cp ${NXDIR}/package-lock.json ./ 
-          cp ${NXDIR}/phpunit.mage-os.nx.xml ./phpunit.nx.xml
           npm ci
           npm run generate-workspace
       - name: Print Affected
@@ -109,8 +108,14 @@ jobs:
       #     ${DEN} env exec -T php-fpm whoami
       #     ${DEN} env exec -T php-fpm ls -lath
 
+      - name: Configure PHPUnit
+        working-directory: ./main
+        run: |
+          cp dev/tests/unit/phpunit.xml.dist dev/tests/unit/phpunit.xml
+          sed -i '/<extensions>/,/<\/extensions>/d' dev/tests/unit/phpunit.xml
+
       - name: Run PHPUnit Nx
         working-directory: ./main
         run: |
           export DEN=/home/runner/work/magento2/magento2/den/bin/den
-          nx affected --target=test:test --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
+          nx affected --target=test:unit --head=HEAD --base=remotes/origin/${{ github.event.pull_request.base.ref }}
