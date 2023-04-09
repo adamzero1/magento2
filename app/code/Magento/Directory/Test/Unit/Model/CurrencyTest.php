@@ -128,13 +128,7 @@ class CurrencyTest extends TestCase
         );
 
         $this->currency->load($currency);
-        $output = $this->currency->getOutputFormat();
-        if($expected !== $output){
-            file_put_contents('adam.log', 'Excepted: '.$expected.PHP_EOL, FILE_APPEND);
-            file_put_contents('adam.log', 'Output: '.$output.PHP_EOL, FILE_APPEND);
-            file_put_contents('adam.log', ''.PHP_EOL, FILE_APPEND);
-        }
-        self::assertEquals($expected, $output);
+        self::assertEquals($expected, $this->currency->getOutputFormat());
     }
 
     /**
