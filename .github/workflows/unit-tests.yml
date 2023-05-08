@@ -13,7 +13,7 @@ jobs:
   run-unit-tests:
     uses: adamzero1/mage-os-infrastructure/.github/workflows/unit-tests.yml@nx-unit-testing
 
-# name: Unit Tests
+# name: Unit Tests   
 # run-name: ${{ github.actor }} is running Unit Tests
 # on:
 #   pull_request:
