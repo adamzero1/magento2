@@ -31,6 +31,7 @@ class CanViewNotification implements VisibilityConditionInterface
     private static $cachePrefix = 'admin-usage-notification-popup';
 
     /**
+     * aaaaaa
      * @var Logger
      */
     private $viewerLogger;
